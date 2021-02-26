@@ -57,7 +57,7 @@ type Route struct {
 }
 
 type RouteHandler interface {
-	AddRoute(Route)
+	AddRoute(...Route)
 }
 
 type RouteProvider interface {
