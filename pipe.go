@@ -104,6 +104,18 @@ func (p *pipe) Cancel() {
 	}()
 }
 
+func (p *pipe) Take(a uint64) Graph {
+	return p.Via(Take(a))
+}
+
+func (p *pipe) Map(f interface{}) Graph {
+	return p.Via(NewFlowFunc(variadicMapFunc(f)))
+}
+
+func (p *pipe) Filter(f interface{}) Graph {
+	return p.Via(NewFlowFunc(variadicFilterFunc(f)))
+}
+
 func (p *pipe) Via(flow Flow) Graph {
 	p.Lock()
 	defer p.Unlock()
