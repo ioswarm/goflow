@@ -76,6 +76,7 @@ func (f *flow) OnPush(v interface{}) {
 			return
 		}
 		f.outlet.Error(err)
+		return
 	}
 	f.outlet.Push(result)
 }
