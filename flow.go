@@ -163,3 +163,76 @@ func (t *take) OnPull() {
 func (t *take) OnCancel() {
 	t.inlet.Cancel()
 }
+
+/* =================== */
+
+type FanOut interface {
+	Consumer
+}
+
+func NewFanOut() FanOut {
+	return &fanOut{
+		inbound: make(chan interface{}), // TODO configure size
+	}
+}
+
+type fanOut struct {
+	sync.Mutex
+	inbound chan interface{}
+	inlet   Inlet
+	sequence uint64
+	lastCmd interface{}
+}
+
+func (fo *fanOut) run() {
+
+}
+
+func (fo *fanOut) OnSubscribe(inlet Inlet) {
+	fo.Lock()
+	defer fo.Unlock()
+	fo.inlet = inlet
+}
+
+func (fo *fanOut) OnPush(v interface{}) {
+	fo.inbound <- Push(v)
+}
+
+func (fo *fanOut) OnError(err error) {
+	fo.inbound <- ErrorCmd(err)
+}
+
+func (fo *fanOut) OnComplete() {
+	fo.inbound <- Complete()
+}
+
+type outletProducer struct {
+	sync.Mutex
+	outlet Outlet
+}
+
+func (fop *outletProducer) Subscribe(outlet Outlet) {
+	fop.Lock()
+	defer fop.Unlock()
+	fop.outlet = outlet
+}
+
+func (fop *outletProducer) OnPull() {
+	
+}
+
+func (fop *outletProducer) OnCancel() {
+
+}
+
+func (fop *outletProducer) Push(v interface{}) {
+	fop.outlet.Push(v)
+}
+
+func (fop *outletProducer) Error(err error) {
+	fop.outlet.Error(err)
+}
+
+func (fop *outletProducer) Complete() {
+	fop.outlet.Complete()
+}
